@@ -1,0 +1,7 @@
+numpy
+pandas
+scipy
+matplotlib
+gym
+stable-baselines3
+torch
