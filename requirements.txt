@@ -1,7 +1,22 @@
+# Core data and numerical computing
 numpy
 pandas
 scipy
+
+# Visualisation
 matplotlib
-gym
-stable-baselines3
+seaborn
+
+# Portfolio optimisation (classical methods)
+riskfolio-lib
+
+# Reinforcement learning environment
+gymnasium
+
+# Deep RL — PPO agent
+stable-baselines3[extra]
 torch
+
+# Notebook
+jupyter
+openpyxl
