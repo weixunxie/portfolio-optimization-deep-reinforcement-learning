@@ -90,7 +90,7 @@ The log-return reward stabilises training under compounding and the combined tra
 The following metrics are computed in the notebooks:
 
 - Cumulative return
-- Sharpe ratio (annualised, risk-free rate = 0)
+- Sharpe ratio (daily, not annualised; risk-free rate = 0)
 - Sortino ratio
 - Individual and portfolio-level 2-year and 5-year returns
 - Portfolio weight composition and risk contribution per asset
@@ -197,9 +197,27 @@ See `requirements.txt` for the full list.
 
 ---
 
+## Known Methodological Issues in This Original Version
+
+These were identified in a later review and are the reason the project was rebuilt as
+[regime-aware-portfolio-allocation](https://github.com/weixunxie/regime-aware-portfolio-allocation).
+They are documented here rather than silently fixed, so the thesis results can be read in context.
+
+| Issue | Effect | How the extended version handles it |
+|---|---|---|
+| **PPO is trained and evaluated on the same data** (the full 2018–2025 series) | The PPO curve is in-sample; its "outperformance" is not evidence of generalisation | Strict train / validation / test split (2010–18 / 2019–20 / 2021–) |
+| **Mean-variance and risk-parity weights use full-sample means and covariances** | Look-ahead: weights are chosen with knowledge of the whole period's returns | Rolling 252-day estimation using only past data at each rebalance |
+| **Reported PPO returns exclude transaction costs** (costs enter the reward only) | The PPO equity curve is gross of costs | Identical cost model applied to every strategy; gross and net reported |
+| **Sharpe / Sortino are daily and not annualised** | Not comparable to conventional annualised figures | Annualised metrics throughout |
+| **Reward description.** The thesis text describes a Sharpe-ratio-based reward, but the code uses `log(1 + r) − 0.2%·|Δw| − 0.5%·|Δw|` | Text and code differ | Reward documented and swept (turnover and downside penalties) |
+| **Single run, no seed control** | Results are not reproducible run-to-run | Five-seed sensitivity analysis; fixed seeds |
+
+With these fixed, the conclusion reverses: in the extended study PPO does **not** consistently beat
+Equal Weight, MVO or Risk Parity out of sample.
+
 ## Limitations
 
-- **Backtest-only:** All results are in-sample or rolling backtests on a single asset universe and sample period. Out-of-sample performance is not evaluated in this repository.
+- **Backtest-only:** All results are in-sample (see above) on a single asset universe and sample period. Out-of-sample performance is not evaluated in this repository.
 - **Sample-period sensitivity:** The 2018–2025 window for Chinese healthcare equities includes an unusually strong sector drawdown. Results may not generalize to other periods or sectors.
 - **Transaction cost assumptions:** A flat 0.2% per-trade cost is used. Real execution costs vary by market conditions, position size, and broker.
 - **PPO sensitivity:** Agent performance depends on reward design, random seed, and hyperparameter choices. The default 20,000 timestep training run is lightweight and may underfit.
